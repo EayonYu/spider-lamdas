@@ -5,11 +5,14 @@ provider:
   runtime: python3.7
   stage: dev
   region: cn-north-1
-  layers:
-  - ${cf:gaia-${opt:layerName}-${opt:layerVersion}-${opt:stage,self:provider.stage}.layerName}
   endpointType: regional
   role: arn:aws:iam::836317673605:role/serverless-role-for-lambda
+
+  layers:
+  - ${cf:gaia-${opt:layerName}-${opt:layerVersion}-${opt:stage,self:provider.stage}.layerName}
+
 functions:
+
   gaia-spider-simulator:
     handler: lambdas.simulator.lambda_handler
     name: gaia-spider-simulator-${opt:stage,self:provider.stage}
@@ -18,43 +21,8 @@ functions:
     - http:
         path: /simulator
         method: post
-  authenticater:
-    handler: lambdas.authenticate.lambda_handler
-    name: gaia-spider-authenticate-${opt:stage,self:provider.stage}
-    description: authenticate
-resources:
-  Resources:
-    AuthorizerPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Fn::GetAtt: AuthenticaterLambdaFunction.Arn
-        Action: lambda:InvokeFunction
-        Principal:
-          Fn::Join:
-          - ""
-          - - apigateway.
-            - Ref: AWS::URLSuffix
-    Authorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        Name: ${opt:stage,self:provider.stage}-Authorizer
-        RestApiId:
-          Fn::ImportValue: iot-platform-${opt:stage,self:provider.stage}-ApiGateway-restApiId
-        Type: TOKEN
-        IdentitySource: method.request.header.accessToken
-        AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri:
-          Fn::Join:
-          - ""
-          - - 'arn:aws:apigateway:'
-            - Ref: AWS::Region
-            - :lambda:path/2015-03-31/functions/
-            - Fn::GetAtt: authenticaterLambdaFunction.Arn
-            - /invocations
-  Outputs:
-    AuthorizerId:
-      Value:
-        Ref: Authorizer
-      Export:
-        Name: GaiaSpiderLambdas-${opt:stage,self:provider.stage}-authorizerId
+        authorizer: authorizer
+
+  authorizer:
+    handler: lambdas.authorizer.lambda_handler
+    name: gaia-spider-authorizer-${opt:stage,self:provider.stage}
