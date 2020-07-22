@@ -1,0 +1,46 @@
+image: "10.124.106.121:5000/codebuild/iot4_gitlab:latest"
+
+stages:
+  - pre_build
+  - deploy
+  - deploy_after
+
+pre_build:write_access:
+  stage: pre_build
+  before_script:
+    - rm -rf ~/.aws/ && mkdir -p ~/.aws/
+    - echo [profile cn-iot4] >> ~/.aws/config
+    - echo region = $IOT4_AWS_DEFAULT_REGION >> ~/.aws/config
+    - echo [cn-iot4] >> ~/.aws/credentials
+    - echo aws_access_key_id = ${IOT4_AWS_ACCESS_KEY_ID} >> ~/.aws/credentials
+    - echo aws_secret_access_key = ${IOT4_AWS_SECRET_ACCESS_KEY} >> ~/.aws/credentials
+  script:
+    - cp -r ~/.aws/credentials ~/.aws/config ./
+  artifacts:
+    paths:
+      - credentials
+      - config
+
+deploy_private:
+  stage: deploy
+  before_script:
+    - python setup.py bdist_wheel
+  script:
+    - twine upload --username hongkang2 --password He8JGUiK dist/* --repository-url http://52.81.42.99:31187/
+  only:
+    - tags
+
+deploy_after:
+  stage: deploy_after
+  variables:
+    STAGE: "dev"
+    REGION: "$IOT4_AWS_DEFAULT_REGION"
+  script:
+    - echo ${CI_COMMIT_TAG}
+    - rm -rf ~/.aws/ && mkdir ~/.aws && cp -r credentials config ~/.aws/ && ls -l ~/.aws && cat ~/.aws/credentials
+    - aws s3 ls --profile cn-iot4 --region cn-north-1
+    - npm i serverless-plugin-aws-cn-principal -D
+    - echo serverless deploy --region ${REGION} --stage ${STAGE} --tag ${CI_COMMIT_TAG} --aws-profile cn-iot4
+    - serverless deploy --region ${REGION} --stage ${STAGE} --aws-profile cn-iot4
+  only:
+    - tags

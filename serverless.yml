@@ -1,0 +1,21 @@
+service: gaia-spider-lambdas
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: dev
+  region: cn-north-1
+  layers:
+  - gaia_spider_layer_0-0-1-dev34_dev
+  #${cf:gaia_spider_layer_${opt:tag}-${opt:stage,self:provider.stage}.layerName}
+  endpointType: regional
+  role: arn:aws:iam::836317673605:role/serverless-role-for-lambda
+functions:
+  gaia-spider-simulator:
+    handler: lambdas.simulator.lambda_handler
+    name: gaia-spider-simulator-${opt:stage,self:provider.stage}
+    description: simulator
+    events:
+    - http:
+        path: /simulator
+        method: post
