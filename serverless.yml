@@ -15,7 +15,6 @@ functions:
 
   compute:
     handler: lambdas.consumer.lambda_handler
-    name: gaia-spider-kinesis-consumer-${opt:stage,self:provider.stage}
     events:
       - stream:
           type: kinesis
