@@ -6,7 +6,7 @@ provider:
   stage: dev
   region: cn-north-1
   layers:
-  - ${cf:${opt:layerName}-${opt:layerVersion}-${opt:stage,self:provider.stage}.layerName}
+  - ${cf:gaia-${opt:layerName}-${opt:layerVersion}-${opt:stage,self:provider.stage}.layerName}
   endpointType: regional
   role: arn:aws:iam::836317673605:role/serverless-role-for-lambda
 functions:
