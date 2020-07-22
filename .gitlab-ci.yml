@@ -41,6 +41,6 @@ deploy_after:
     - aws s3 ls --profile cn-iot4 --region cn-north-1
     - npm i serverless-plugin-aws-cn-principal -D
     - echo serverless deploy --region ${REGION} --stage ${STAGE} --tag ${CI_COMMIT_TAG} --aws-profile cn-iot4
-    - serverless deploy --region ${REGION} --stage ${STAGE} --aws-profile cn-iot4
+    - layerName=`cat requirements.txt | awk -F "==" '{print $1}' | sed "s/ //g"` && layerVersion=`cat requirements.txt | awk -F "==" '{print $2}' | sed "s/ //g" | sed "s/\./-/g"` && serverless deploy --region ${REGION} --stage ${STAGE} --layerName ${layerName} --layerVersion ${layerVersion} --aws-profile cn-iot4
   only:
     - tags
