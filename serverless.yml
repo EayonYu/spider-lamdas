@@ -18,5 +18,5 @@ functions:
     events:
       - stream:
           type: kinesis
-          arn: arn:aws-cn:kinesis:cn-north-1:836317673605:stream/prod.mirror.update
+          arn: arn:aws-cn:kinesis:cn-north-1:836317673605:stream/prod-mirror-update
           consumer: true
