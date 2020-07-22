@@ -5,8 +5,6 @@ provider:
   runtime: python3.7
   stage: dev
   region: cn-north-1
-  endpointType: regional
-  role: arn:aws:iam::836317673605:role/serverless-role-for-lambda
 
   layers:
   - ${cf:gaia-${opt:layerName}-${opt:layerVersion}-${opt:stage,self:provider.stage}.layerName}
