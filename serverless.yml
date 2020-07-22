@@ -13,16 +13,11 @@ provider:
 
 functions:
 
-  gaia-spider-simulator:
-    handler: lambdas.simulator.lambda_handler
-    name: gaia-spider-simulator-${opt:stage,self:provider.stage}
-    description: simulator
+  compute:
+    handler: lambdas.consumer.lambda_handler
+    name: gaia-spider-kinesis-consumer-${opt:stage,self:provider.stage}
     events:
-    - http:
-        path: /simulator
-        method: post
-        authorizer: authorizer
-
-  authorizer:
-    handler: lambdas.authorizer.lambda_handler
-    name: gaia-spider-authorizer-${opt:stage,self:provider.stage}
+      - stream:
+          type: kinesis
+          arn: arn:aws-cn:kinesis:cn-north-1:836317673605:stream/prod.mirror.update
+          consumer: true
