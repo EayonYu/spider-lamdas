@@ -6,7 +6,7 @@ provider:
   stage: dev
   region: cn-north-1
   layers:
-  - gaia_spider_layer_0-0-1-dev34_dev
+  - gaia-spider-layer-0-0-1-dev34_dev
   #${cf:gaia_spider_layer_${opt:tag}-${opt:stage,self:provider.stage}.layerName}
   endpointType: regional
   role: arn:aws:iam::836317673605:role/serverless-role-for-lambda
