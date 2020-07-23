@@ -12,7 +12,7 @@ provider:
 functions:
 
   compute:
-    handler: lambdas.consumer.lambda_handler
+    handler: lambdas.kinesis_consumer.lambda_handler
     events:
       - stream:
           type: kinesis
