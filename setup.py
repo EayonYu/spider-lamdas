@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 # get requirements from requirements.txt
@@ -29,7 +29,7 @@ if version:
         author='jacob.hong',
         author_email='jacob.hong@tcl.com',
         license='MIT',
-        packages=['lambdas'],
+        packages=find_packages(),
         url='http://10.124.106.120:18080/cloudplatform/gaia/spider/lambdas',
         zip_safe=False,
         install_requires=install_requires,
