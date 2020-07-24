@@ -7,10 +7,9 @@ from layer.env import Env
 from lambdas.consume import consume
 
 
-l = Layer(Env.LOCAL)
-
-
 def main():
+    l = Layer(Env.LOCAL)
+
     stream = 'prod-mirror-update'
     response = l.aws.kinesis_client.describe_stream(StreamName=stream)
     shard_id = response['StreamDescription']['Shards'][0]['ShardId']
