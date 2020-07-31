@@ -8,9 +8,9 @@ from lambdas.consume import consume
 
 
 def main():
+    stream = 'debug4partner2'
     l = Layer(Env.LOCAL)
 
-    stream = 'prod-mirror-update'
     response = l.aws.kinesis_client.describe_stream(StreamName=stream)
     shard_id = response['StreamDescription']['Shards'][0]['ShardId']
     shard_iterator = l.aws.kinesis_client.get_shard_iterator(
@@ -37,7 +37,7 @@ def main():
             try:
                 print(f'PartitionKey:{record["PartitionKey"]}, SequenceNumber: {record["SequenceNumber"]}')
                 data = json.loads(record['Data'])
-                consume(data)
+                consume(data, l)
             except Exception as e:
                 print(e)
                 continue
