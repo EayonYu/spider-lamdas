@@ -106,6 +106,8 @@ def _sync_partner_device_add(layer: Layer):
                     gaia_device.immutable_identity = immutable_identity
                     gaia_device.device_info = partner_device.device_info
                     session.add(gaia_device)
+                    session.flush()
+                    gaia_device.platform_device_id = gaia_device.id
                 partner_device.update_required = False
                 platform_device_id = gaia_device.platform_device_id
                 partner_device.platform_device_id = platform_device_id
