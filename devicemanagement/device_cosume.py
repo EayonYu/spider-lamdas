@@ -19,6 +19,7 @@ def consume_device_event(data, layer: Layer):
             _handler(message, event_type, layer)
         except KeyError:
             # TODO
+            print("没有找到合适的类型--->:{}".format(data))
             pass
 
 
