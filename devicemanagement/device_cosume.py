@@ -12,7 +12,7 @@ from .partner import PartnerType
 from .utils import generate_immutable_identity, ImmutableIdentityElement
 
 
-def consume(data, layer: Layer):
+def consume_device_event(data, layer: Layer):
     for message in data:
         try:
             event_type = message['messageType'].split('.')[0]

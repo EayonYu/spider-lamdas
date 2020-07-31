@@ -4,6 +4,8 @@ from lambdas.user_event.user_deleted1 import user_deleted_data
 from lambdas.user_device_event.user_device_binding import user_device_binding_data
 from lambdas.user_event.user_updated import user_update_data
 
+from devicemanagement.device_cosume import consume_device_event
+
 
 def consume(data, l: Layer):
     print("data type 是--->:{},data 是{}".format(type(data), data))
@@ -32,8 +34,10 @@ def consume(data, l: Layer):
         elif data[0]["messageType"] == "UserDeviceBinding.Event":
             user_device_binding_data(data, session)
         else:
-            print("不是要处理的event的类型，数据为{}".format(data))
-            pass
+            # 处理device的事件
+            consume_device_event(data, l)
+            # print("不是要处理的event的类型，数据为{}".format(data))
+            # pass
 
     except Exception as e:
         print(e)
