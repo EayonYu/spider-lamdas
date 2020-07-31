@@ -58,8 +58,8 @@ def _device_add_handler(data, layer):
                             GaiaDeviceModel.immutable_identity == immutable_identity
                         )
                     ).one_or_none()
-                    if gaia_device and not gaia_device.delete_at:
-                        gaia_device.delete_at = datetime.datetime.utcnow()
+                    if gaia_device and not gaia_device.deleted_at:
+                        gaia_device.deleted_at = datetime.datetime.utcnow()
 
             # 在partner_device增加该设备
             partner_device = PartnerDeviceModel()
@@ -96,7 +96,7 @@ def _sync_partner_device_add(layer: Layer):
                     and_(GaiaDeviceModel.immutable_identity == immutable_identity)
                 ).one_or_none()
                 # gaia_device存在且没有删除，直接建立mapping关系
-                if gaia_device and not gaia_device.delete_at:
+                if gaia_device and not gaia_device.deleted_at:
                     gaia_device.update_required = True
                 else:
                     # gaia_device不存在，新增一个设备
@@ -130,20 +130,31 @@ def _sync_gaia_device_add(layer: Layer):
                 # decide and mark new PRIMARY device for this platform_device
                 partner_devices = session.query(PartnerDeviceModel).filter(
                     and_(
-                        PartnerDeviceModel.immutable_identity == gaia_device.immutable_identity
+                        PartnerDeviceModel.immutable_identity == gaia_device.immutable_identity,
+                        PartnerDeviceModel.deleted_at == None
                     )
                 ).all()
 
-                def is_close_partner(partner_device):
-                    partner_id = partner_device.partner_id
-                    return partner_id == PartnerType.ChinaIoT.value or partner_id == PartnerType.OverseaIoT.value
-
-                close_partner_devices = list(filter(is_close_partner, partner_devices))
-                if len(close_partner_devices) > 0:
-                    sorted(close_partner_devices, key=lambda d: d.updated_at, reverse=True)[0].primary_device = True
+                if len(partner_devices) == 0:
+                    gaia_device.deleted_at = datetime.datetime.utcnow()
                 else:
-                    sorted(partner_devices, key=lambda d: d.updated_at, reverse=True)[0].primary_device = True
-                gaia_device.update_required = False
+                    def is_close_partner(partner_device):
+                        partner_id = partner_device.partner_id
+                        return partner_id == PartnerType.ChinaIoT.value or partner_id == PartnerType.OverseaIoT.value
+
+                    def is_primary_device(partner_device):
+                        return partner_device.primary_device == True
+
+                    old_primary_devices = list(filter(is_primary_device, partner_devices))
+                    if len(old_primary_devices) > 0:
+                        old_primary_devices[0].primary_device = False
+
+                    close_partner_devices = list(filter(is_close_partner, partner_devices))
+                    if len(close_partner_devices) > 0:
+                        sorted(close_partner_devices, key=lambda d: d.updated_at, reverse=True)[0].primary_device = True
+                    else:
+                        sorted(partner_devices, key=lambda d: d.updated_at, reverse=True)[0].primary_device = True
+            gaia_device.update_required = False
         session.commit()
     except Exception as e:
         session.rollback()
